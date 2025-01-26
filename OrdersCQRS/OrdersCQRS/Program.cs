@@ -1,3 +1,5 @@
+using Application.Commands;
+using Application.Queries;
 using Core.Interfaces.Repositories.Commands;
 using Core.Interfaces.Repositories.Queries;
 using Core.Interfaces.Repositories.Services;
@@ -10,8 +12,6 @@ using Infrastructure.Seed;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-using OrdersCQRS.Handlers.Commands;
-using OrdersCQRS.Handlers.Queries;
 
 var builder = WebApplication.CreateBuilder(args);
 

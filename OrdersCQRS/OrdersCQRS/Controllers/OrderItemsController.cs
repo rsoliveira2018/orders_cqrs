@@ -1,7 +1,7 @@
+using Application.Commands;
+using Application.Queries;
 using Core.Entities;
 using Microsoft.AspNetCore.Mvc;
-using OrdersCQRS.Handlers.Commands;
-using OrdersCQRS.Handlers.Queries;
 
 namespace OrdersCQRS.Controllers;
 

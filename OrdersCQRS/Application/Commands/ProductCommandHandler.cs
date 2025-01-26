@@ -2,7 +2,7 @@
 using Core.Interfaces.Repositories.Commands;
 using Core.Interfaces.Repositories.Queries;
 
-namespace OrdersCQRS.Handlers.Commands;
+namespace Application.Commands;
 
 public class ProductCommandHandler(IProductCommandRepository commandRepository, IProductQueryRepository queryRepository)
 {

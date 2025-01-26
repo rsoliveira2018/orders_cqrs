@@ -10,5 +10,5 @@ public class OrderItem
     public decimal UnitPrice { get; set; }
     public decimal TotalPrice { get; set; }
     public Order? Order { get; set; }
-    public required Product Product { get; set; }
+    public Product? Product { get; set; }
 }

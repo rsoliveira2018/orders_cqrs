@@ -1,7 +1,7 @@
 ﻿using Core.Entities;
 using Core.Interfaces.Repositories.Queries;
 
-namespace OrdersCQRS.Handlers.Queries;
+namespace Application.Queries;
 
 public class ProductQueryHandler(IProductQueryRepository queryRepository)
 {
