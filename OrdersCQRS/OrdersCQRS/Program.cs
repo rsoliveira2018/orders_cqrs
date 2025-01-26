@@ -1,13 +1,17 @@
-using Core.Interfaces;
+using Core.Interfaces.Repositories.Commands;
+using Core.Interfaces.Repositories.Queries;
+using Core.Interfaces.Repositories.Services;
 using Core.Services;
 using Infrastructure.Data;
 using Infrastructure.Mongo;
-using Infrastructure.Repositories;
+using Infrastructure.Repositories.Commands;
+using Infrastructure.Repositories.Queries;
 using Infrastructure.Seed;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using MongoDB.Bson;
 using MongoDB.Driver;
+using OrdersCQRS.Handlers.Commands;
+using OrdersCQRS.Handlers.Queries;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +20,8 @@ ConfigureMongoDB(builder);
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 InjectRepositories(builder);
+InjectServices(builder);
+InjectCommandsAndQueries(builder);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -73,15 +79,35 @@ static void SeedMongoData(WebApplication app)
 
 static void InjectRepositories(WebApplicationBuilder builder)
 {
-    builder.Services.AddScoped<IProductReadRepository, ProductReadRepository>();
-    builder.Services.AddScoped<IOrderReadRepository, OrderReadRepository>();
-    builder.Services.AddScoped<IOrderItemReadRepository, OrderItemReadRepository>();
-    builder.Services.AddScoped<ICustomerReadRepository, CustomerReadRepository>();
+    builder.Services.AddScoped<IProductCommandRepository, ProductCommandRepository>();
+    builder.Services.AddScoped<ICustomerCommandRepository, CustomerCommandRepository>();
+    builder.Services.AddScoped<IOrderCommandRepository, OrderCommandRepository>();
+    builder.Services.AddScoped<IOrderItemCommandRepository, OrderItemCommandRepository>();
 
-    builder.Services.AddScoped<IProductRepository, ProductRepository>();
-    builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-    builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
-    builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+    builder.Services.AddScoped<IProductQueryRepository, ProductQueryRepository>();
+    builder.Services.AddScoped<ICustomerQueryRepository, CustomerQueryRepository>();
+    builder.Services.AddScoped<IOrderQueryRepository, OrderQueryRepository>();
+    builder.Services.AddScoped<IOrderItemQueryRepository, OrderItemQueryRepository>();
+}
+
+static void InjectServices(WebApplicationBuilder builder)
+{
+    builder.Services.AddScoped<IOrderService, OrderService>();
+}
+
+static void InjectCommandsAndQueries(WebApplicationBuilder builder)
+{
+    builder.Services.AddScoped<ProductCommandHandler>();
+    builder.Services.AddScoped<ProductQueryHandler>();
+
+    builder.Services.AddScoped<CustomerCommandHandler>();
+    builder.Services.AddScoped<CustomerQueryHandler>();
+
+    builder.Services.AddScoped<OrderCommandHandler>();
+    builder.Services.AddScoped<OrderQueryHandler>();
+
+    builder.Services.AddScoped<OrderItemCommandHandler>();
+    builder.Services.AddScoped<OrderItemQueryHandler>();
 }
 
 static void ConfigureMongoDB(WebApplicationBuilder builder)

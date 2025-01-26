@@ -1,31 +1,29 @@
 using Core.Entities;
-using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using OrdersCQRS.Handlers.Commands;
+using OrdersCQRS.Handlers.Queries;
 
 namespace OrdersCQRS.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class CustomersController(
-    ILogger<CustomersController> logger,
-    ICustomerRepository customerRepository,
-    ICustomerReadRepository mongoRepository) : ControllerBase
+public class CustomersController(CustomerCommandHandler commandHandler, CustomerQueryHandler queryHandler) : ControllerBase
 {
-    private readonly ILogger<CustomersController> _logger = logger;
-    private readonly ICustomerRepository _customerRepository = customerRepository;
-    private readonly ICustomerReadRepository _mongoRepository = mongoRepository;
+    private readonly CustomerCommandHandler _commandHandler = commandHandler;
+    private readonly CustomerQueryHandler _queryHandler = queryHandler;
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Customer>>> GetAllCustomers()
     {
-        var customers = await _mongoRepository.GetAllAsync();
+        var customers = await _queryHandler.GetAllAsync();
         return Ok(customers);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Customer>> GetCustomerById(int id)
     {
-        var customer = await _mongoRepository.GetByIdAsync(id);
+        var customer = await _queryHandler.GetByIdAsync(id);
+
         if (customer == null)
             return NotFound();
 
@@ -35,24 +33,22 @@ public class CustomersController(
     [HttpPost]
     public async Task<ActionResult<Customer>> CreateCustomer(Customer customer)
     {
-        await _customerRepository.AddAsync(customer);
+        await _commandHandler.AddAsync(customer);
         return CreatedAtAction(nameof(CreateCustomer), new { id = customer.Id }, customer);
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateCustomer(int id, Customer customer)
     {
-        if (id != customer.Id)
-            return BadRequest();
-
-        await _customerRepository.UpdateAsync(customer);
+        if (id != customer.Id) return BadRequest();
+        await _commandHandler.UpdateAsync(customer);
         return NoContent();
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteCustomer(int id)
     {
-        await _customerRepository.DeleteAsync(id);
+        await _commandHandler.DeleteAsync(id);
         return NoContent();
     }
 }

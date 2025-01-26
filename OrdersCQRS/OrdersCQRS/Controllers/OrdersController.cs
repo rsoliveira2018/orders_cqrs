@@ -1,16 +1,13 @@
 using Core.Entities;
-using Core.Interfaces;
+using Core.Interfaces.Repositories.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace OrdersCQRS.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class OrdersController(
-    ILogger<OrdersController> logger,
-    IOrderService orderService) : ControllerBase
+public class OrdersController(IOrderService orderService) : ControllerBase
 {
-    private readonly ILogger<OrdersController> _logger = logger;
     private readonly IOrderService _orderService = orderService;
 
     [HttpPost]

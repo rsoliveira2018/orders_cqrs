@@ -1,25 +1,29 @@
 ﻿using Core.Entities;
-using Core.Interfaces;
+using Core.Interfaces.Repositories.Commands;
+using Core.Interfaces.Repositories.Queries;
+using Core.Interfaces.Repositories.Services;
 
 namespace Core.Services;
 
 public class OrderService(
-    IOrderRepository orderRepository,
-    IProductRepository productRepository,
-    ICustomerRepository customerRepository)
+    IOrderCommandRepository orderCommandRepository,
+    IOrderQueryRepository orderQueryRepository,
+    IProductQueryRepository productQueryRepository,
+    ICustomerQueryRepository customerQueryRepository) : IOrderService
 {
-    private readonly IOrderRepository _orderRepository = orderRepository;
-    private readonly IProductRepository _productRepository = productRepository;
-    private readonly ICustomerRepository _customerRepository = customerRepository;
+    private readonly IOrderCommandRepository _orderCommandRepository = orderCommandRepository;
+    private readonly IOrderQueryRepository _orderQueryRepository = orderQueryRepository;
+    private readonly IProductQueryRepository _productQueryRepository = productQueryRepository;
+    private readonly ICustomerQueryRepository _customerQueryRepository = customerQueryRepository;
 
     public async Task<Order> CreateOrderAsync(int customerId, List<OrderItem> orderItemsSent)
     {
-        var customer = await _customerRepository.GetByIdAsync(customerId) ?? throw new KeyNotFoundException($"Customer with ID {customerId} not found.");
+        var customer = await _customerQueryRepository.GetByIdAsync(customerId) ?? throw new KeyNotFoundException($"Customer with ID {customerId} not found.");
 
         var orderItems = new List<OrderItem>();
         foreach (var orderItemSent in orderItemsSent)
         {
-            var product = await _productRepository.GetByIdAsync(orderItemSent.ProductId) ?? throw new KeyNotFoundException($"Product with ID {orderItemSent.ProductId} not found.");
+            var product = await _productQueryRepository.GetByIdAsync(orderItemSent.ProductId) ?? throw new KeyNotFoundException($"Product with ID {orderItemSent.ProductId} not found.");
             OrderItem orderItem = new()
             {
                 ProductId = product.Id,
@@ -38,13 +42,13 @@ public class OrderService(
             OrderDate = DateTime.UtcNow
         };
 
-        await _orderRepository.AddAsync(order);
+        await _orderCommandRepository.AddAsync(order);
         return order;
     }
 
     public async Task<Order> GetOrderByIdAsync(int orderId)
     {
-        var order = await _orderRepository.GetByIdAsync(orderId) ?? throw new KeyNotFoundException($"Order with Id {orderId} not found.");
+        var order = await _orderQueryRepository.GetByIdAsync(orderId) ?? throw new KeyNotFoundException($"Order with Id {orderId} not found.");
         return order;
     }
 }
