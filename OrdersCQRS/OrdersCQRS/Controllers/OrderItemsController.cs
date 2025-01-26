@@ -6,22 +6,26 @@ namespace OrdersCQRS.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class OrderItemController(ILogger<OrderItemController> logger, IOrderItemRepository orderItemRepository) : ControllerBase
+public class OrderItemsController(
+    ILogger<OrderItemsController> logger,
+    IOrderItemRepository orderItemRepository,
+    IOrderItemReadRepository mongoRepository) : ControllerBase
 {
-    private readonly ILogger<OrderItemController> _logger = logger;
+    private readonly ILogger<OrderItemsController> _logger = logger;
     private readonly IOrderItemRepository _orderItemRepository = orderItemRepository;
+    private readonly IOrderItemReadRepository _mongoRepository = mongoRepository;
 
     [HttpGet]
-    public ActionResult<IEnumerable<OrderItem>> GetAllOrderItems(Guid orderId)
+    public ActionResult<IEnumerable<OrderItem>> GetOrderItemsByOrderId(int orderId)
     {
-        var orderItems = _orderItemRepository.GetAllOrderItemsByOrderId(orderId);
+        var orderItems = _mongoRepository.GetOrderItemsByOrderId(orderId);
         return Ok(orderItems);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<OrderItem>> GetOrderItemById(Guid id)
+    public async Task<ActionResult<OrderItem>> GetOrderItemById(int id)
     {
-        var orderItem = await _orderItemRepository.GetByIdAsync(id);
+        var orderItem = await _mongoRepository.GetByIdAsync(id);
         if (orderItem == null)
             return NotFound();
 
@@ -31,22 +35,22 @@ public class OrderItemController(ILogger<OrderItemController> logger, IOrderItem
     [HttpPost]
     public async Task<ActionResult<OrderItem>> CreateOrderItem(OrderItem orderItem)
     {
-        await _orderItemRepository.PostAsync(orderItem);
+        await _orderItemRepository.AddAsync(orderItem);
         return CreatedAtAction(nameof(CreateOrderItem), new { id = orderItem.Id }, orderItem);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateOrderItem(Guid id, OrderItem orderItem)
+    public async Task<IActionResult> UpdateOrderItem(int id, OrderItem orderItem)
     {
         if (id != orderItem.Id)
             return BadRequest();
 
-        await _orderItemRepository.PutAsync(orderItem);
+        await _orderItemRepository.UpdateAsync(orderItem);
         return NoContent();
     }
 
     [HttpDelete("{orderItemId}")]
-    public async Task<IActionResult> DeleteOrderItem(Guid orderItemId)
+    public async Task<IActionResult> DeleteOrderItem(int orderItemId)
     {
         await _orderItemRepository.DeleteAsync(orderItemId);
         return NoContent();

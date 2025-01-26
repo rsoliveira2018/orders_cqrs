@@ -2,7 +2,7 @@
 
 namespace Core.Interfaces;
 
-public interface IOrderRepository
+public interface IOrderReadRepository
 {
     Task<List<Order>> GetAllAsync();
     Task<Order> GetByIdAsync(int id);

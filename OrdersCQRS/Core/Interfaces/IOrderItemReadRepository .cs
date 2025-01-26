@@ -2,7 +2,7 @@
 
 namespace Core.Interfaces;
 
-public interface IOrderItemRepository
+public interface IOrderItemReadRepository
 {
     List<OrderItem> GetOrderItemsByOrderId(int orderId);
     Task<OrderItem> GetByIdAsync(int id);

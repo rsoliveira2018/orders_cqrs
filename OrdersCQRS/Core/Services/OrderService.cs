@@ -12,7 +12,7 @@ public class OrderService(
     private readonly IProductRepository _productRepository = productRepository;
     private readonly ICustomerRepository _customerRepository = customerRepository;
 
-    public async Task<Order> CreateOrderAsync(Guid customerId, List<OrderItem> orderItemsSent)
+    public async Task<Order> CreateOrderAsync(int customerId, List<OrderItem> orderItemsSent)
     {
         var customer = await _customerRepository.GetByIdAsync(customerId) ?? throw new KeyNotFoundException($"Customer with ID {customerId} not found.");
 
@@ -38,11 +38,11 @@ public class OrderService(
             OrderDate = DateTime.UtcNow
         };
 
-        await _orderRepository.PostAsync(order);
+        await _orderRepository.AddAsync(order);
         return order;
     }
 
-    public async Task<Order> GetOrderByIdAsync(Guid orderId)
+    public async Task<Order> GetOrderByIdAsync(int orderId)
     {
         var order = await _orderRepository.GetByIdAsync(orderId) ?? throw new KeyNotFoundException($"Order with Id {orderId} not found.");
         return order;

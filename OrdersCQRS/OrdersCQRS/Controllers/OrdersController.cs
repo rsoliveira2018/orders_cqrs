@@ -1,18 +1,20 @@
 using Core.Entities;
-using Core.Services;
+using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace OrdersCQRS.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class OrderController(ILogger<OrderController> logger, OrderService orderService) : ControllerBase
+public class OrdersController(
+    ILogger<OrdersController> logger,
+    IOrderService orderService) : ControllerBase
 {
-    private readonly ILogger<OrderController> _logger = logger;
-    private readonly OrderService _orderService = orderService;
+    private readonly ILogger<OrdersController> _logger = logger;
+    private readonly IOrderService _orderService = orderService;
 
     [HttpPost]
-    public async Task<ActionResult<Order>> CreateOrder(Guid customerId, [FromBody] List<OrderItem> orderItems)
+    public async Task<ActionResult<Order>> CreateOrder(int customerId, [FromBody] List<OrderItem> orderItems)
     {
         try
         {
@@ -26,7 +28,7 @@ public class OrderController(ILogger<OrderController> logger, OrderService order
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Order>> GetOrderById(Guid id)
+    public async Task<ActionResult<Order>> GetOrderById(int id)
     {
         var order = await _orderService.GetOrderByIdAsync(id);
         if (order == null)

@@ -6,22 +6,26 @@ namespace OrdersCQRS.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class ProductController(ILogger<ProductController> logger, IProductRepository productRepository) : ControllerBase
+public class ProductsController(
+    ILogger<ProductsController> logger,
+    IProductRepository productRepository,
+    IProductReadRepository mongoRepository) : ControllerBase
 {
-    private readonly ILogger<ProductController> _logger = logger;
+    private readonly ILogger<ProductsController> _logger = logger;
     private readonly IProductRepository _productRepository = productRepository;
+    private readonly IProductReadRepository _mongoRepository = mongoRepository;
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Product>>> GetAllProducts()
     {
-        var products = await _productRepository.GetAllAsync();
+        var products = await _mongoRepository.GetAllAsync();
         return Ok(products);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Product>> GetProductById(Guid id)
+    public async Task<ActionResult<Product>> GetProductById(int id)
     {
-        var product = await _productRepository.GetByIdAsync(id);
+        var product = await _mongoRepository.GetByIdAsync(id);
         if (product == null)
             return NotFound();
 
@@ -31,22 +35,22 @@ public class ProductController(ILogger<ProductController> logger, IProductReposi
     [HttpPost]
     public async Task<ActionResult<Product>> CreateProduct(Product product)
     {
-        await _productRepository.PostAsync(product);
+        await _productRepository.AddAsync(product);
         return CreatedAtAction(nameof(CreateProduct), new { id = product.Id }, product);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateProduct(Guid id, Product product)
+    public async Task<IActionResult> UpdateProduct(int id, Product product)
     {
         if (id != product.Id)
             return BadRequest();
 
-        await _productRepository.PutAsync(product);
+        await _productRepository.UpdateAsync(product);
         return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteProduct(Guid id)
+    public async Task<IActionResult> DeleteProduct(int id)
     {
         await _productRepository.DeleteAsync(id);
         return NoContent();

@@ -2,8 +2,8 @@
 
 public class Order
 {
-    public Guid Id { get; set; }
-    public Guid CustomerId { get; set; }
+    public int Id { get; set; }
+    public int CustomerId { get; set; }
     public required Customer Customer { get; set; }
     public required DateTime OrderDate { get; set; }
     public decimal TotalAmount { get; set; }

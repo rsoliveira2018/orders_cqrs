@@ -2,7 +2,7 @@
 
 namespace Core.Interfaces;
 
-public interface ICustomerRepository
+public interface ICustomerReadRepository
 {
     Task<List<Customer>> GetAllAsync();
     Task<Customer> GetByIdAsync(int id);

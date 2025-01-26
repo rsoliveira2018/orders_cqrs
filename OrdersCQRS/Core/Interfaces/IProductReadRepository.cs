@@ -2,7 +2,7 @@
 
 namespace Core.Interfaces;
 
-public interface IProductRepository
+public interface IProductReadRepository
 {
     Task<List<Product>> GetAllAsync();
     Task<Product> GetByIdAsync(int id);
