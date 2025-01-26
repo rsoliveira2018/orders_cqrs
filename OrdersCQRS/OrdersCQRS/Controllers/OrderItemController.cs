@@ -1,29 +1,54 @@
 using Core.Entities;
+using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace OrdersCQRS.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class OrderItemController(ILogger<OrderItemController> logger) : ControllerBase
+public class OrderItemController(ILogger<OrderItemController> logger, IOrderItemRepository orderItemRepository) : ControllerBase
 {
     private readonly ILogger<OrderItemController> _logger = logger;
+    private readonly IOrderItemRepository _orderItemRepository = orderItemRepository;
 
-    [HttpGet(Name = "GetOrderItem")]
-    public IEnumerable<OrderItem> Get()
+    [HttpGet]
+    public ActionResult<IEnumerable<OrderItem>> GetAllOrderItems(Guid orderId)
     {
-        _logger.LogInformation("Get order item endpoint has received a request");
+        var orderItems = _orderItemRepository.GetAllOrderItemsByOrderId(orderId);
+        return Ok(orderItems);
+    }
 
-        return Enumerable.Range(1, 5).Select(index => new OrderItem
-        {
-            Id = Guid.NewGuid(),
-            OrderId = Guid.NewGuid(),
-            ProductId = Guid.NewGuid(),
-            ProductName = "Product " + index,
-            Quantity = index,
-            UnitPrice = Random.Shared.Next(1, 15) * index,
-            TotalPrice = Random.Shared.Next(30, 195) * index
-        })
-        .ToArray();
+    [HttpGet("{id}")]
+    public async Task<ActionResult<OrderItem>> GetOrderItemById(Guid id)
+    {
+        var orderItem = await _orderItemRepository.GetByIdAsync(id);
+        if (orderItem == null)
+            return NotFound();
+
+        return Ok(orderItem);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<OrderItem>> CreateOrderItem(OrderItem orderItem)
+    {
+        await _orderItemRepository.PostAsync(orderItem);
+        return CreatedAtAction(nameof(CreateOrderItem), new { id = orderItem.Id }, orderItem);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateOrderItem(Guid id, OrderItem orderItem)
+    {
+        if (id != orderItem.Id)
+            return BadRequest();
+
+        await _orderItemRepository.PutAsync(orderItem);
+        return NoContent();
+    }
+
+    [HttpDelete("{orderItemId}")]
+    public async Task<IActionResult> DeleteOrderItem(Guid orderItemId)
+    {
+        await _orderItemRepository.DeleteAsync(orderItemId);
+        return NoContent();
     }
 }
